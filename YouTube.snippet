@@ -1,23 +1,24 @@
-########################################
-# 应用名称：Youtube Block AD + 原生翻译解锁
-# 基础版本：基于 ddgksf2013 原版无缝整合
-########################################
-
-# ======= 1. 墨鱼原版核心：视频PIP|后台播放|瀑布流|搜索页|播放页|短视频|贴片广告 =======
-^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch) url script-response-body https://raw.githubusercontent.com/Maasea/sgmodule/refs/heads/master/Script/Youtube/youtube.response.js
-
-# ======= 2. 墨鱼原版：视频广告请求拦截 =======
+# ======= 1. 墨鱼原版：通用广告拦截与打点屏蔽 =======
 (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+) url 302 $1$2$3
 ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad url reject-200
-
-# ======= 3. 墨鱼原版：通用广告请求拦截 =======
+^https?:\/\/([\w-]+)\.googlevideo\.com\/initplayback(\?.*oad=.+)$ url reject-img
 ^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads url reject-200
 ^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking) url reject-200
 ^https?:\/\/s\.youtube\.com\/api\/stats\/qoe\?adcontext url reject-200
 
-# ======= 4. 仅追加：解锁字幕原生自动翻译（仅监听 timedtext，不干扰播放器） =======
-^https?:\/\/(www|m)\.youtube\.com\/api\/timedtext(\?.+)?$ url script-request-body https://raw.githubusercontent.com/DualSubs/YouTube/main/dist/request.bundle.js
-^https?:\/\/(www|m)\.youtube\.com\/api\/timedtext\?(.*)subtype=Translate url script-response-body https://raw.githubusercontent.com/DualSubs/Universal/main/dist/Translate.response.bundle.js
+# 墨鱼通用页面（browse/next/search/guide 等）去广告增强
+^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|search|reel\/reel_watch_sequence|guide|account\/get_setting) url script-response-body https://raw.githubusercontent.com/Maasea/sgmodule/refs/heads/master/Script/Youtube/youtube.response.js
 
-# ======= 5. 墨鱼原版 MitM 域名（补齐 www 与 m 域名以解密字幕） =======
-hostname = -redirector*.googlevideo.com, *.googlevideo.com, www.youtube.com, s.youtube.com, m.youtube.com, youtubei.googleapis.com
+# ======= 2. DualSubs 官方标准规则：字幕与翻译解锁 =======
+# 播放器与观看接口拦截（接管字幕轨分发）
+^https?:\/\/(www|m|tv)\.youtube\.com\/youtubei\/v1\/player(\?.+)?$ url script-response-body https://github.com/DualSubs/YouTube/releases/latest/download/response.bundle.js
+^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/player(\?.+)?$ url script-response-body https://github.com/DualSubs/YouTube/releases/latest/download/response.bundle.js
+^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/get_watch(\?.+)?$ url script-response-body https://github.com/DualSubs/YouTube/releases/latest/download/response.bundle.js
+
+# 字幕请求与翻译核心
+^https?:\/\/(www|m)\.youtube\.com\/api\/timedtext(\?.+)?$ url script-request-body https://github.com/DualSubs/YouTube/releases/latest/download/request.bundle.js
+^https?:\/\/(www|m)\.youtube\.com\/api\/timedtext\?(.*)subtype=(Official|External) url script-response-body https://github.com/DualSubs/Universal/releases/latest/download/Composite.Subtitles.response.bundle.js
+^https?:\/\/(www|m)\.youtube\.com\/api\/timedtext\?(.*)subtype=Translate url script-response-body https://github.com/DualSubs/Universal/releases/latest/download/Translate.response.bundle.js
+
+# ======= 3. MitM 域名解密（完整合并） =======
+hostname = -redirector*.googlevideo.com, *.googlevideo.com, www.youtube.com, s.youtube.com, m.youtube.com, tv.youtube.com, youtubei.googleapis.com
