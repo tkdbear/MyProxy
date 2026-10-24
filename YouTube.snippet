@@ -1,16 +1,14 @@
-# ======= 1. 去广告 + 后台播放 + 画中画 + 简中注入 =======
-^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch) url script-response-body https://raw.githubusercontent.com/tkdbear/MyProxy/refs/heads/main/youtube.response.js
+# ======= YouTube 去广告 + 后台播放 + 解锁原生自动翻译 =======
+^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch) url script-response-body https://raw.githubusercontent.com/ddgksf2013/Scripts/master/youtube.response.preview.js
 
-# ======= 2. 放行并解析字幕请求（解决“加载字幕出错”） =======
-^https?:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|reel\/reel_watch_sequence|get_watch) url script-request-body https://raw.githubusercontent.com/Maasea/sgmodule/refs/heads/master/Script/Youtube/youtube.request.js
-
-# ======= 3. 视频与流媒体贴片广告拦截 =======
+# ======= 视频广告请求 =======
 (^https?:\/\/[\w-]+\.googlevideo\.com\/(?!dclk_video_ads).+?)&ctier=L(&.+?),ctier,(.+) url 302 $1$2$3
 ^https?:\/\/[\w-]+\.googlevideo\.com\/(?!(dclk_video_ads|videoplayback\?)).+&oad url reject-200
-^https?:\/\/([\w-]+)\.googlevideo\.com\/initplayback(\?.*oad=.+)$ url reject-img
+
+# ======= 通用广告拦截 =======
 ^https?:\/\/(www|s)\.youtube\.com\/api\/stats\/ads url reject-200
 ^https?:\/\/(www|s)\.youtube\.com\/(pagead|ptracking) url reject-200
 ^https?:\/\/s\.youtube\.com\/api\/stats\/qoe\?adcontext url reject-200
 
-# ======= 4. MitM 解密域名 =======
-hostname = www.youtube.com, s.youtube.com, m.youtube.com, tv.youtube.com, music.youtube.com, youtubei.googleapis.com, -redirector*.googlevideo.com, *.googlevideo.com
+# ======= MitM 解密域名 =======
+hostname = -redirector*.googlevideo.com, *.googlevideo.com, www.youtube.com, s.youtube.com, youtubei.googleapis.com
